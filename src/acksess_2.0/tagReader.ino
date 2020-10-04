@@ -1,15 +1,21 @@
 int tagReaderGetUID(byte UID[]) {
 	byte RFIDsuccess;
 	byte uidLength;
+	byte tempUID[7] = {0,0,0,0,0,0,0};
 	int errorCode = 0;
 
 	disableHWSPI();
-	RFIDsuccess = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, UID, &uidLength, 50);
+	RFIDsuccess = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, tempUID, &uidLength, 50);
 	enableHWSPI();
 
 	if (RFIDsuccess) {
 		if (!(uidLength == 4)) {
 			errorCode = 2;
+		}
+		else {
+			for (int i = 0; i < 4; i++) {
+				UID[i] = tempUID[i];
+			}
 		}
 	}
 	else {
