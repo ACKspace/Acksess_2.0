@@ -88,7 +88,7 @@ int tagReaderSetKeys(byte UID[]) {
 	data[7] = 0x07;
 	data[8] = 0x80;
 
-	for (int i = 9; i < 17; i++) {
+	for (int i = 9; i < 16; i++) {
 		data[i] = 0xFF;
 	}
 
@@ -131,7 +131,7 @@ int tagReaderClearKeys(byte UID[]) {
 	data[7] = 0x07;
 	data[8] = 0x80;
 
-	for (int i = 9; i < 17; i++) {
+	for (int i = 9; i < 16; i++) {
 		data[i] = 0xFF;
 	}
 
