@@ -9,9 +9,9 @@ void calculateKey(byte UID[], byte sector, byte key[], int sizeKey) {
 }
 
 void generateHash(byte data[], int dataSize, byte hash[], int sizeHash) {
-    sha512.reset();
-    sha512.update(data, dataSize);
-	sha512.finalize(hash, sizeHash);
+  sha512.reset();
+  sha512.update(data, dataSize);
+  sha512.finalize(hash, sizeHash);
 }
 
 void generateRandomArray(int arraySize, byte Array[]) {

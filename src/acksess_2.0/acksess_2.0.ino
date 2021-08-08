@@ -10,6 +10,7 @@
 byte masterKey[] = "DeKatKrabtDeKrollenVanDeTrap"; //Placeholder masterkey. To be changed right before uploading final version with lock bits enabled on Arduino.
 int tagEntrySize = 18;
 
+int pinTagReaderEnable = 7;
 int pinTagReaderCs = 8;
 int pinFlashNotWriteProtect = 9;
 int pinFlashNotCs = 10;
@@ -30,6 +31,7 @@ Adafruit_PN532 nfc(pinSck, pinMiso, pinMosi, pinTagReaderCs); //Uses software SP
 SHA512 sha512;
 
 void setup() {
+  pinMode(pinTagReaderEnable, OUTPUT);
 	pinMode(pinTagReaderCs, OUTPUT);
 	pinMode(pinFlashNotWriteProtect, OUTPUT);
 	pinMode(pinSck, OUTPUT);
@@ -39,7 +41,9 @@ void setup() {
 	pinMode(pinRandomNoise, INPUT);
 	pinMode(pinDoorRelay, OUTPUT);
 	pinMode(pinBuzzer, OUTPUT);
-	
+
+  digitalWrite(pinTagReaderEnable, HIGH);
+  
 	digitalWrite(pinFlashNotCs, HIGH);
 	Serial.begin(115200);
 
