@@ -7,7 +7,7 @@
 //SHA512 hashing
 #include <SHA512.h>
 
-byte masterKey[] = "DeKatKrabtDeKrollenVanDeTrap"; //Placeholder masterkey. To be changed right before uploading final version with lock bits enabled on Arduino.
+//byte masterKey[] = "ChangeAndUncommentMe"; //Placeholder masterkey. To be changed right before uploading final version with lock bits enabled on Arduino.
 int tagEntrySize = 18;
 
 int pinTagReaderEnable = 7;
@@ -66,7 +66,7 @@ void setup() {
 }
 
 void loop() {
-
+  //BOOTSTRAPPING: Comment the following if/else block
 	if (modeAdmin == 0) {
 		modeNormalCheckTag();
 		modeNormalCheckUART();
@@ -74,4 +74,6 @@ void loop() {
 	else {
 		modeAdminCheckUART();
 	}
+ //BOOTSTRAPPING: Ucomment the following, flash, connect UART, add tag and add admin, comment the below and uncomment the above again, flash again.
+ //modeAdminCheckUART();
 }

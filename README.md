@@ -6,8 +6,28 @@ It also implements a mitigation of the vulnerability of MiFare classic.
 
 ***
 ## Installation
-TBD: Bootstrapping flash storage currently not implemented.  
-Needs a way to clear the flash chip and add the first admin tag.
+### Setting the masterKey
+In acksess_2.0.ino, uncomment the masterKey variable and change it to something secret.
+All keys to lock the tags are derived from this master key, so don't lose it.
+Without it you can't recover your tags anymore should you want to use them for something else.
+
+### Bootstrapping the flash storage with the first admin tag
+To bootstrap the flash storage, adjust your loop() in acksess_2.0.ino
+See the comments there for more details.
+
+### Securely flashing the firmware
+Once you've got a tag added and have confirmed everything is working, it's a good idea to lock your Arduino so the firmware can't be read back anymore. Otherwise you'll be able to read the masterKey by connecting it via USB and dumping the Arduino flash.
+You need and ISP for this. The USBASP is pretty cheap on aliexpress, or you could use a second arduino (https://www.arduino.cc/en/pmwiki.php?n=Tutorial/ArduinoISP). The below examples assume you're using an USBASP
+
+- Open the Arduino Sketch
+- Sketch -> Export compiled binary
+- Browse terminal to arduino sketch location
+- Flash the hex using avrdude and usbasp:  WITHOUT THE BOOTLOADER. Chip must be erased, so don't include -D switch!
+- e.g.: avrdude -c usbasp -v -p atmega328p -P usb -U flash:w:acksess_2.0.ino.eightanaloginputs.hex:i
+- Lock the flash using avrdude.
+- e.g.: avrdude -c usbasp -v -p atmega328p -P usb -D -U lock:w:0xC0:m
+- To reset lock bits (which also erases the chip):
+- e.g.: avrdude -c usbasp -v -p atmega328p -P usb -U lock:w:0xFF:m
 
 ***
 ## Usage
