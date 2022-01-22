@@ -1,7 +1,7 @@
 # Acksess_2.0
 
 This is the second version of the Acksess project.  
-The goal is to create an RFID based door access system with MiFare classic cards.  
+The goal is to create an RFID based door access system with MiFare classic 1K cards.  
 It also implements a mitigation of the vulnerability of MiFare classic.
 
 ***
