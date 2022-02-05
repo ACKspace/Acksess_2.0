@@ -97,6 +97,7 @@ int modeAdminReadTag(byte UID[]) {
 void modeAdminAddTag(byte UID[]) {
 	byte secret[4];
 	byte defaultKey[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+  long address;
 	
 	generateRandomArray(sizeof(secret), secret);
 
@@ -112,6 +113,10 @@ void modeAdminAddTag(byte UID[]) {
 	if ((tagDBAdd(UID, secret, sizeof(secret))) == 0xFFFFFFFF) {
 		Serial.println(F("UID already exists in DB. Cancelled."));
 	}
+  else {
+    address = tagDBGetAddress(UID);
+    tagDBSetKeyfixFlag(address, 0x01);
+  }
 }
 
 void modeAdminSetAdminFlag(byte UID[]) {

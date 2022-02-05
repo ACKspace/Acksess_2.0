@@ -5,13 +5,15 @@ Byte # => Data contained
 1-4 => Tag UID
 5-10 => Reserved (used to be key, but no longer needed as it gets calculated from the master key, UID en sector number)
 11-14 => Secret stored in read-protected area of tag
-15-16 => Reserved (Might get used to store date of latest key change later. Intended format: days since 2000/01/01)
+15 => Flag to indicate if the B keys were corrected
+16 => Reserved (Might get used to store date of latest key change later. Intended format: days since 2000/01/01)
 17 => Flags (currently only 0x00 for normal tag and 0x01 for admin tag)
 */
 
 int UIDOffset = 1;
 int keyOffset = 5;
 int secretOffset = 11;
+int keyfixOffset = 15;
 int flagOffset = 17;
 
 void tagDBUpdateEntry(long address, byte dbEntry[]) {
@@ -151,6 +153,15 @@ void tagDBSetAdminFlag(long address, byte flag) {
 	tagDBUpdateEntry(address, tagEntry);
 }
 
+void tagDBSetKeyfixFlag(long address, byte flag) {
+  byte tagEntry[tagEntrySize];
+
+  flashReadData(address, tagEntrySize, tagEntry);
+  tagEntry[keyfixOffset] = flag;
+
+  tagDBUpdateEntry(address, tagEntry);  
+}
+
 /*
 void tagDBGetKey(long address, byte key[]) {
 	flashReadData(address+keyOffset, 6, key);
@@ -165,4 +176,10 @@ byte tagDBGetAdminFlag(long address) {
 	byte flag[1];
 	flashReadData(address+flagOffset, 1, flag);
 	return flag[0];
+}
+
+byte tagDBGetKeyfixFlag(long address) {
+  byte flag[1];
+  flashReadData(address+keyfixOffset, 1, flag);
+  return flag[0];
 }

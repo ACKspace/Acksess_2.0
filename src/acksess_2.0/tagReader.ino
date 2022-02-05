@@ -87,10 +87,7 @@ int tagReaderSetKeys(byte UID[]) {
 	data[6] = 0xFF;
 	data[7] = 0x07;
 	data[8] = 0x80;
-
-	for (int i = 9; i < 16; i++) {
-		data[i] = 0xFF;
-	}
+  data[9] = 0xFF;
 
 	disableHWSPI();
 	for (int sector = 0; sector < 16; sector++) {
@@ -100,6 +97,10 @@ int tagReaderSetKeys(byte UID[]) {
 		for (int i = 0; i < 6; i++) {
 			data[i] = newKey[i];
 		}
+    for (int i = 10; i < 16; i++) {
+      data[i] = newKey[i-10];
+    }
+    
 		RFIDsuccess = nfc.mifareclassic_AuthenticateBlock(UID, uidLength, trailerBlock, 0, oldKey);
 		if (RFIDsuccess) {
 			RFIDsuccess = nfc.mifareclassic_WriteDataBlock (trailerBlock, data);
@@ -113,6 +114,46 @@ int tagReaderSetKeys(byte UID[]) {
 	}
 	enableHWSPI();
 	return errorCode;
+}
+
+//Old version of software didn't set KeyB. This fixes tag which were created using that old version.
+int tagReaderFixKeys(byte UID[]) {
+  byte RFIDsuccess;
+  byte uidLength = 4;
+  byte data[16];
+  byte key[6];
+  int errorCode = 0;
+  
+  //Access bytes set to KeyB may be read and only allow reading from data blocks with KeyA.
+  data[6] = 0xFF;
+  data[7] = 0x07;
+  data[8] = 0x80;
+  data[9] = 0xFF;
+
+  disableHWSPI();
+  for (int sector = 0; sector < 16; sector++) {
+    int trailerBlock = (sector * 4) + 3;
+    calculateKey(UID, sector, key, sizeof(key));
+    for (int i = 0; i < 6; i++) {
+      data[i] = key[i];
+    }
+    for (int i = 10; i < 16; i++) {
+      data[i] = key[i-10];
+    }
+
+    RFIDsuccess = nfc.mifareclassic_AuthenticateBlock(UID, uidLength, trailerBlock, 0, key);
+    if (RFIDsuccess) {
+      RFIDsuccess = nfc.mifareclassic_WriteDataBlock (trailerBlock, data);
+      if (!RFIDsuccess) {
+        errorCode = 1;
+      }
+    }
+    else {
+      errorCode = 2;
+    }
+  }
+  enableHWSPI();
+  return errorCode;
 }
 
 int tagReaderClearKeys(byte UID[]) {
@@ -130,8 +171,9 @@ int tagReaderClearKeys(byte UID[]) {
 	data[6] = 0xFF;
 	data[7] = 0x07;
 	data[8] = 0x80;
+  data[9] = 0xFF;
 
-	for (int i = 9; i < 16; i++) {
+	for (int i = 10; i < 16; i++) {
 		data[i] = 0xFF;
 	}
 

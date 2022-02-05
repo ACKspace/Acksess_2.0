@@ -63,7 +63,27 @@ void modeNormalCheckTag() {
 				tone (pinBuzzer, 2048, 100);
 				return;
 			}
-			
+
+      if (tagDBGetKeyfixFlag(address) == 0) { // If tag was created without B keys set, set them now.
+        result = tagReaderFixKeys(UID);
+        if (result == 0) {
+          tagDBSetKeyfixFlag(address, 0x01);
+        }
+        else {
+          Serial.println(F("Settings B keys failed. Impatient?"));
+          tone (pinBuzzer, 2048, 100);
+          delay(100);
+          tone (pinBuzzer, 2048, 100);
+          delay(100);
+          tone (pinBuzzer, 2048, 100);
+          delay(100);
+          tone (pinBuzzer, 2048, 100);
+          delay(100);
+          tone (pinBuzzer, 2048, 100);
+          delay(100);
+        }
+      }
+      
 			if (memcmp(tagSecret, flashSecret, sizeof(tagSecret)) == 0) { // Everything OK. Write new secret to tag and flash, then open door.
 				tone (pinBuzzer, 2048, 100);
 				modeNormalGrantAccess(address, UID, key);
