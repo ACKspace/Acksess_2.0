@@ -7,7 +7,7 @@
 //SHA512 hashing
 #include <SHA512.h>
 
-//byte masterKey[] = "ChangeMe!"; //Placeholder masterkey. To be changed right before uploading final version with lock bits enabled on Arduino.
+//Masterkey moved to file masterKey.ino, which is not synced to github. To create one, simply add a tab with varialbe definition: byte masterKey[] = "YOURMASTERKEYHERE";
 int tagEntrySize = 18;
 
 int pinTagReaderVCCEnable = 7;
@@ -53,19 +53,43 @@ void setup() {
 
 	uint32_t versiondata = nfc.getFirmwareVersion();
 	if (! versiondata) {
-		Serial.print(F("Didn't find PN53x board"));
-		while (1); // halt
+		detectNFCBoard();
 	}
-	Serial.print(F("Found chip PN5")); Serial.println((versiondata>>24) & 0xFF, HEX); 
-	Serial.print(F("PN532 Firmware ver. ")); Serial.print((versiondata>>16) & 0xFF, DEC); 
-	Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
+
 	//Done initializing RFID Reader
 	Serial.println(F("Acksess v2.0"));
 	
-	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPI2X); // Enable SPI, Set as Master, /2 Prescaler
+	enableHWSPI(); // Enable SPI, Set as Master, /2 Prescaler
+}
+
+void detectNFCBoard() {
+  disableHWSPI();
+  uint32_t versiondata = 0;
+  versiondata = nfc.getFirmwareVersion();
+  if (versiondata == 0) {
+    Serial.println(F("PN53x not responding. Power cycling board"));
+    digitalWrite(pinTagReaderVCCEnable, LOW);
+    delay(4000);
+    digitalWrite(pinTagReaderVCCEnable, HIGH);
+    delay(1000);
+    disableHWSPI();
+    nfc.begin();
+    nfc.SAMConfig();
+    enableHWSPI();
+    versiondata = nfc.getFirmwareVersion();
+    if (! versiondata) {
+      Serial.println(F("Power cycle failed. Waiting 1 minute before trying again."));
+      delay(60000);
+    }
+  }
+  enableHWSPI();
 }
 
 void loop() {
+
+  //Detect if PN53x board gets stuck. If so, power cycle the board
+  detectNFCBoard();
+  
   //BOOTSTRAPPING: Comment the following if/else block
 	if (modeAdmin == 0) {
 		modeNormalCheckTag();
